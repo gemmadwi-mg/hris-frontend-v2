@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+/* Konfigurasi tema (pengganti tailwind.config.js) sekarang ditulis langsung di CSS jika diperlukan */
+@theme {
+  --color-primary: #3b82f6; /* Contoh menambahkan warna kustom */
+}
+
+body {
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-800);
+  -webkit-font-smoothing: antialiased;
+}
