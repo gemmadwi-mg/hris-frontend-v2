@@ -8,7 +8,13 @@
           <h1 class="text-2xl font-bold text-gray-900">Data Karyawan</h1>
           <p class="text-sm text-gray-500 mt-1">Kelola informasi, posisi, dan akses sistem karyawan.</p>
         </div>
-        <router-link to="/employees/create" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition shadow-sm flex items-center gap-2 w-max">
+        
+        <!-- TOMBOL TAMBAH (Hanya untuk Admin, HR Manager, & HR Staff) -->
+        <router-link 
+          v-if="authStore.hasAnyRole(['System Administrator', 'HR Manager', 'HR Staff'])"
+          to="/employees/create" 
+          class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition shadow-sm flex items-center gap-2 w-max"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
           Tambah Karyawan
         </router-link>
@@ -75,7 +81,7 @@
                 <td class="px-6 py-4 whitespace-nowrap">
                   <div class="flex items-center">
                     <div class="flex-shrink-0 h-10 w-10 bg-blue-100 text-blue-600 flex items-center justify-center rounded-full font-bold shadow-sm border border-blue-200">
-                      {{ emp.full_name.charAt(0) }}
+                      {{ emp.full_name ? emp.full_name.charAt(0) : '?' }}
                     </div>
                     <div class="ml-4">
                       <div class="text-sm font-bold text-gray-900">{{ emp.full_name }}</div>
@@ -95,16 +101,32 @@
                   </span>
                 </td>
                 
-                <!-- KOLOM AKSI (IKON) -->
+                <!-- KOLOM AKSI -->
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                   <div class="flex justify-center items-center gap-2">
+                    
+                    <!-- Detail: Semua user terautentikasi dapat melihat detail -->
                     <router-link :to="`/employees/${emp.employee_id}`" title="Lihat Detail" class="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     </router-link>
-                    <router-link :to="`/employees/${emp.employee_id}/edit`" title="Edit Karyawan" class="p-1.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors">
+
+                    <!-- Edit: Hanya Admin, HR Manager, & HR Staff -->
+                    <router-link 
+                      v-if="authStore.hasAnyRole(['System Administrator', 'HR Manager', 'HR Staff'])"
+                      :to="`/employees/${emp.employee_id}/edit`" 
+                      title="Edit Karyawan" 
+                      class="p-1.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors"
+                    >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
                     </router-link>
-                    <button @click="handleDelete(emp.employee_id, emp.full_name)" title="Hapus Karyawan" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
+
+                    <!-- Hapus: Hanya Admin & HR Manager -->
+                    <button 
+                      v-if="authStore.hasAnyRole(['System Administrator', 'HR Manager'])"
+                      @click="handleDelete(emp.employee_id, emp.full_name)" 
+                      title="Hapus Karyawan" 
+                      class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                    >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
                     </button>
                   </div>
@@ -161,6 +183,9 @@
 import { ref, onMounted } from 'vue'
 import api from '../lib/axios'
 import Swal from 'sweetalert2'
+import { useAuthStore } from '../stores/auth' // 1. Import Pinia Store
+
+const authStore = useAuthStore() // 2. Inisialisasi Auth Store
 
 const employees = ref([])
 const isLoading = ref(true)
@@ -178,7 +203,7 @@ const pagination = ref({
   next_page_url: null
 })
 
-// Fungsi utama ambil data (dengan parameter)
+// Fungsi utama ambil data
 const fetchEmployees = async (page = 1) => {
   isLoading.value = true
   try {
@@ -190,15 +215,13 @@ const fetchEmployees = async (page = 1) => {
       }
     })
     
-    // Karena Laravel paginate, datanya bersarang (nested) di res.data.data.data
     const pagedData = response.data.data
-    employees.value = pagedData.data
+    employees.value = pagedData.data || pagedData
     
-    // Simpan metadata pagination
     pagination.value = {
-      current_page: pagedData.current_page,
-      last_page: pagedData.last_page,
-      total: pagedData.total,
+      current_page: pagedData.current_page || 1,
+      last_page: pagedData.last_page || 1,
+      total: pagedData.total || employees.value.length,
       from: pagedData.from || 0,
       to: pagedData.to || 0,
       prev_page_url: pagedData.prev_page_url,
@@ -219,7 +242,6 @@ const fetchEmployees = async (page = 1) => {
 
 // Handler Aksi
 const handleSearch = () => {
-  // Reset ke halaman 1 setiap kali mencari sesuatu
   fetchEmployees(1)
 }
 
@@ -251,7 +273,6 @@ const handleDelete = async (id, name) => {
     try {
       await api.delete(`/employees/${id}`)
       
-      // Refresh tabel di halaman saat ini
       fetchEmployees(pagination.value.current_page)
       
       Swal.fire({

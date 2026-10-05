@@ -62,7 +62,6 @@
           </div>
 
           <!-- SEGMEN 2: Waktu Datang & Pulang -->
-          <!-- Segmen ini disembunyikan jika statusnya Cuti/Alfa/Izin karena tidak ada jam masuk -->
           <template v-if="form.attendance_status === 'Present' || form.attendance_status === 'Invalid'">
             <div class="md:col-span-2 mt-4"><h2 class="text-lg font-bold text-gray-900 border-b pb-2">Catatan Waktu</h2></div>
 
@@ -132,7 +131,6 @@ const options = ref({
   branches: []
 })
 
-// Mengambil format YYYY-MM-DD hari ini
 const todayDate = new Date().toISOString().substring(0, 10)
 
 const form = reactive({
@@ -146,19 +144,16 @@ const form = reactive({
   clock_out_time: '',
   clock_out_status: '',
   
-  clock_in_coordinates: '-7.311009, 112.728790', // Default Surabaya
-  clock_in_photo: 'manual_input.jpg', // Dummy path untuk input manual
+  clock_in_coordinates: '-7.311009, 112.728790',
+  clock_in_photo: 'manual_input.jpg',   // Nilai default foto masuk
+  clock_out_photo: 'manual_input.jpg',  // Nilai default foto keluar
 })
 
-// Fungsi memuat data opsi Karyawan & Cabang
 const fetchOptions = async () => {
   try {
-    // 1. Ambil data cabang dari API reference yang sudah kita buat sebelumnya
     const resRef = await api.get('/references/employee-options')
     options.value.branches = resRef.data.data.branches
 
-    // 2. Ambil data karyawan (Tanpa pagination untuk dropdown, asumsikan API mendukung parameter limit)
-    // Jika API index Employee Anda tidak mendukung limit besar, Anda bisa membuat API reference khusus karyawan
     const resEmp = await api.get('/employees?limit=1000') 
     options.value.employees = resEmp.data.data.data || resEmp.data.data
   } catch (error) {
@@ -166,7 +161,6 @@ const fetchOptions = async () => {
   }
 }
 
-// Watcher: Jika status bukan Present/Invalid, bersihkan data jam masuk/pulang
 watch(() => form.attendance_status, (newStatus) => {
   if (newStatus !== 'Present' && newStatus !== 'Invalid') {
     form.clock_in_time = ''
@@ -178,7 +172,6 @@ watch(() => form.attendance_status, (newStatus) => {
   }
 })
 
-// Format input datetime-local HTML5 menjadi YYYY-MM-DD HH:MM:SS (format MySQL)
 const formatDateTimeForMySQL = (isoString) => {
   if (!isoString) return null
   return isoString.replace('T', ' ')
@@ -191,7 +184,11 @@ const submitForm = async () => {
   // Siapkan Payload
   const payload = { ...form }
 
-  // Format tanggal jika ada isinya
+  // PASTIKAN FOTO SELALU ADA ISI DEFAULT
+  if (!payload.clock_in_photo) payload.clock_in_photo = 'manual_input.jpg'
+  if (!payload.clock_out_photo) payload.clock_out_photo = 'manual_input.jpg'
+
+  // Format Waktu
   if (payload.clock_in_time) {
     payload.clock_in_time = formatDateTimeForMySQL(payload.clock_in_time)
   }
@@ -199,7 +196,6 @@ const submitForm = async () => {
     payload.clock_out_time = formatDateTimeForMySQL(payload.clock_out_time)
   }
   
-  // Jika form disembunyikan (karena alfa/cuti), jangan kirim string kosong untuk field datetime
   if (!payload.clock_out_time) delete payload.clock_out_time
   if (!payload.clock_in_time && payload.attendance_status !== 'Present') {
       delete payload.clock_in_time

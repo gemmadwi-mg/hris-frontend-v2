@@ -4,59 +4,70 @@ import api from '../lib/axios'
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('auth_token') || null,
-    user: null, // Menyimpan data Karyawan (Employee)
+    user: null, // Menyimpan data Karyawan + Role + Permissions
   }),
   
   getters: {
     isAuthenticated: (state) => !!state.token,
     
-    // Cek Role berdasarkan nama jabatannya
+    // Ambil nama role user saat ini
+    userRole: (state) => state.user?.role?.role_name || '',
+
     hasRole: (state) => {
       return (roleName) => state.user?.role?.role_name === roleName
     },
+
+    // Cek apakah user memiliki SALAH SATU role dari daftar array
+    hasAnyRole: (state) => {
+      return (roleArray = []) => {
+        const currentRole = state.user?.role?.role_name
+        return roleArray.includes(currentRole)
+      }
+    },
     
-    // (Opsional) Cek Permission spesifik jika Anda me-load relasi permissions di backend
     hasPermission: (state) => {
       return (permissionName) => {
         const permissions = state.user?.role?.permissions || []
         return permissions.some(p => p.name === permissionName)
       }
+    },
+
+    hasAnyPermission: (state) => {
+      return (permissionArray = []) => {
+        const permissions = state.user?.role?.permissions || []
+        return permissionArray.some(pName => permissions.some(p => p.name === pName))
+      }
     }
   },
   
   actions: {
-    // Fungsi Login
     async login(credentials) {
-      // Panggil endpoint login yang sudah kita buat di AuthController
+      // 1. Panggil API Login
       const response = await api.post('/login', credentials)
+      const { token } = response.data.data
       
-      // Ambil token dan data dari response backend
-      const { token, employee } = response.data.data
-      
-      // Simpan ke state Pinia dan LocalStorage
+      // 2. Simpan token saja
       this.token = token
-      this.user = employee
       localStorage.setItem('auth_token', token)
+
+      // 3. Ambil data profil LENGKAP (termasuk role.permissions) dari /me
+      // Hapus baris 'this.user = employee' agar tidak menimpa dengan data parsial
+      await this.fetchUser()
       
       return response
     },
 
-    // Fungsi Ambil Data User (Dipanggil saat halam di-refresh)
     async fetchUser() {
       if (!this.token) return
       
       try {
         const response = await api.get('/me')
-        this.user = response.data.data // Data karyawan + relasi role & company
+        this.user = response.data.data // Data karyawan + relasi role.permissions & company
       } catch (error) {
-        // Jika gagal (token tidak valid), bersihkan data
-        this.token = null
-        this.user = null
-        localStorage.removeItem('auth_token')
+        this.logout()
       }
     },
 
-    // Fungsi Logout
     async logout() {
       try {
         await api.post('/logout')
