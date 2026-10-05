@@ -67,7 +67,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import api from '../lib/axios'
+import api from '../../lib/axios'
 import VueApexCharts from 'vue3-apexcharts'
 
 const apexchart = VueApexCharts

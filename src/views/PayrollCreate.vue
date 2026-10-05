@@ -134,8 +134,13 @@ const calculatedDeductions = computed(() => (form.absence_deduction || 0) + (for
 const calculatedNet = computed(() => calculatedGross.value - calculatedDeductions.value + (form.adjustment || 0))
 
 const fetchEmployees = async () => {
-  const res = await api.get('/employees?limit=1000')
-  employees.value = res.data.data.data || res.data.data
+  try {
+    const res = await api.get('/references/employee-options')
+    // Mengambil array 'employees' dari response reference
+    employees.value = res.data.data.employees || []
+  } catch (error) {
+    console.error('Gagal mengambil data karyawan:', error)
+  }
 }
 
 const autoCalculate = async (isEmployeeChange = false) => {
