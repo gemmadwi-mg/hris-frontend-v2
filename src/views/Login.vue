@@ -91,7 +91,12 @@ const handleLogin = async () => {
       backdrop: `rgba(0,0,123,0.1)` 
     })
     
-    router.push('/')
+    // Redirect Otomatis Berdasarkan Role
+    if (authStore.user?.role === 'Employee') {
+      router.push('/employee/dashboard')
+    } else {
+      router.push('/admin/dashboard')
+    }
   } catch (error) {
     let errorText = 'Terjadi kesalahan pada server.'
     if (error.response && error.response.data.message) {
