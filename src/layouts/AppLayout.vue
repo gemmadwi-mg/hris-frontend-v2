@@ -13,7 +13,7 @@
       <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
         <!-- Menu Global (Semua role terautentikasi bisa mengakses) -->
         <router-link 
-          to="/"
+          to="/admin/dashboard"
           class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-gray-700 hover:bg-gray-50"
           exact-active-class="bg-blue-50 text-blue-700 !text-blue-700"
         >
@@ -27,7 +27,7 @@
           <!-- Data Karyawan (Hanya Admin & HR) -->
           <router-link 
             v-if="authStore.hasAnyRole(['System Administrator', 'HR Manager', 'HR Staff'])"
-            to="/employees"
+            to="/admin/employees"
             class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-gray-700 hover:bg-gray-50"
             active-class="bg-blue-50 text-blue-700 !text-blue-700"
           >
@@ -37,7 +37,7 @@
           <!-- Penggajian (Admin, HR, & Finance) -->
           <router-link 
             v-if="authStore.hasAnyRole(['System Administrator', 'HR Manager', 'HR Staff', 'Finance'])"
-            to="/payrolls"
+            to="/admin/payrolls"
             class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-gray-700 hover:bg-gray-50"
             active-class="bg-blue-50 text-blue-700 !text-blue-700"
           >
@@ -50,7 +50,7 @@
           <p class="px-3 pt-5 pb-2 text-xs font-bold text-gray-400 uppercase tracking-wider">Kehadiran</p>
 
           <router-link 
-            to="/attendances"
+            to="/admin/attendances"
             class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-gray-700 hover:bg-gray-50"
             active-class="bg-blue-50 text-blue-700 !text-blue-700"
           >
@@ -58,7 +58,7 @@
           </router-link>
 
           <router-link 
-            to="/leave-requests"
+            to="/admin/leave-requests"
             class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-gray-700 hover:bg-gray-50"
             active-class="bg-blue-50 text-blue-700 !text-blue-700"
           >
@@ -66,7 +66,7 @@
           </router-link>
 
           <router-link 
-            to="/permit-requests"
+            to="/admin/permit-requests"
             class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-gray-700 hover:bg-gray-50"
             active-class="bg-blue-50 text-blue-700 !text-blue-700"
           >
@@ -74,7 +74,7 @@
           </router-link>
 
           <router-link 
-            to="/overtimes"
+            to="/admin/overtimes"
             class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-gray-700 hover:bg-gray-50"
             active-class="bg-blue-50 text-blue-700 !text-blue-700"
           >
