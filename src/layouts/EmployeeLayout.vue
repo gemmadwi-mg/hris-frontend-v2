@@ -33,7 +33,8 @@
             <p class="text-xs font-bold text-gray-900">{{ authStore.user?.full_name || 'Karyawan' }}</p>
             <p class="text-[10px] text-gray-500">{{ authStore.user?.job_title || 'Employee' }}</p>
           </div>
-          <button @click="authStore.logout()" class="p-2 text-gray-400 hover:text-red-600 rounded-lg transition" title="Keluar">
+          <!-- 💡 DIPERBAIKI: Memanggil handleLogout() -->
+          <button @click="handleLogout" class="p-2 text-gray-400 hover:text-red-600 rounded-lg transition" title="Keluar">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
           </button>
         </div>
@@ -57,7 +58,8 @@
         <span>Absensi</span>
       </router-link>
 
-      <button @click="authStore.logout()" class="flex flex-col items-center gap-0.5 text-gray-400 p-1.5 text-[10px]">
+      <!-- 💡 DIPERBAIKI: Memanggil handleLogout() -->
+      <button @click="handleLogout" class="flex flex-col items-center gap-0.5 text-gray-400 p-1.5 text-[10px]">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
         <span>Keluar</span>
       </button>
@@ -67,6 +69,42 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import Swal from 'sweetalert2'
+
+const router = useRouter()
 const authStore = useAuthStore()
+
+const handleLogout = async () => {
+  const result = await Swal.fire({
+    title: 'Konfirmasi Keluar',
+    text: 'Apakah Anda yakin ingin keluar dari akun ini?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Ya, Logout',
+    cancelButtonText: 'Batal'
+  })
+
+  if (result.isConfirmed) {
+    try {
+      await authStore.logout()
+      
+      await Swal.fire({
+        icon: 'success',
+        title: 'Berhasil Logout',
+        text: 'Anda telah keluar dari aplikasi.',
+        timer: 1500,
+        showConfirmButton: false
+      })
+
+      router.replace('/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+      window.location.href = '/login'
+    }
+  }
+}
 </script>

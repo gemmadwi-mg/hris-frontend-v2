@@ -2,7 +2,7 @@
   <div class="max-w-7xl mx-auto py-6">
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-2xl font-bold text-gray-800">Proses Gaji Baru</h1>
-      <button @click="router.push('/payrolls')" class="text-gray-500 hover:text-gray-700">
+      <button @click="router.push('/admin/payrolls')" class="text-gray-500 hover:text-gray-700">
         Batal & Kembali
       </button>
     </div>

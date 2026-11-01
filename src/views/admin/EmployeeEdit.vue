@@ -4,7 +4,7 @@
     <!-- SIDEBAR KIRI (VERTICAL STEPPER) -->
     <aside class="w-full md:w-80 bg-white border-r border-gray-200 flex flex-col shadow-sm z-10 shrink-0">
       <div class="p-6 border-b border-gray-200 flex items-center gap-3">
-        <button @click="router.push('/employees')" class="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition"
+        <button @click="router.push('/admin/employees')" class="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition"
           title="Batal & Kembali">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
@@ -526,7 +526,7 @@ const submitForm = async () => {
       showConfirmButton: false
     })
 
-    router.push('/employees')
+    router.push('/admin/employees')
 
   } catch (error) {
     let errorText = 'Terjadi kesalahan pada server.'

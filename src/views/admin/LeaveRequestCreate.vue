@@ -3,7 +3,7 @@
     <div class="max-w-3xl mx-auto">
       
       <div class="flex items-center gap-4 mb-8">
-        <button @click="router.push('/leave-requests')" class="p-2.5 bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 rounded-xl transition shadow-sm">
+        <button @click="router.push('/admin/leave-requests')" class="p-2.5 bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 rounded-xl transition shadow-sm">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         </button>
         <div>
@@ -129,7 +129,7 @@ const submitForm = async () => {
     })
     
     await Swal.fire({ icon: 'success', title: 'Berhasil!', text: 'Pengajuan cuti berhasil dibuat.', showConfirmButton: false, timer: 1500 })
-    router.push('/leave-requests')
+    router.push('/admin/leave-requests')
   } catch (error) {
     errorMessage.value = error.response?.data?.message || 'Gagal menyimpan pengajuan cuti.'
   } finally {

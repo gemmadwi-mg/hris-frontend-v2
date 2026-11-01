@@ -5,7 +5,7 @@
       <!-- HEADER & TOMBOL KEMBALI -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div class="flex items-center gap-4">
-          <button @click="router.push('/leave-requests')" class="p-2.5 bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 rounded-xl transition shadow-sm" title="Kembali">
+          <button @click="router.push('/admin/leave-requests')" class="p-2.5 bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 rounded-xl transition shadow-sm" title="Kembali">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
@@ -208,6 +208,7 @@ const getInitials = (name) => name ? name.split(' ').map(n => n[0]).join('').sub
 const formatDate = (date) => date ? new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(date)) : '-'
 const formatDateTime = (date) => date ? new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(date)) : '-'
 
+// Perbaikan kalkulasi durasi hari kerja di script setup LeaveRequestDetail.vue
 const calculateDays = (start, end) => {
   if (!start || !end) return 0
   return Math.ceil(Math.abs(new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24)) + 1

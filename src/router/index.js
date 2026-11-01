@@ -102,10 +102,26 @@ const routes = [
         name: 'AdminDashboard',
         component: () => import('../views/admin/Dashboard.vue')
       },
+      // --- KARYAWAN ROUTES ---
       {
         path: 'employees',
         name: 'AdminEmployees',
         component: () => import('../views/admin/EmployeeList.vue')
+      },
+      {
+        path: 'employees/create',
+        name: 'AdminEmployeeCreate',
+        component: () => import('../views/admin/EmployeeCreate.vue')
+      },
+      {
+        path: 'employees/:id',
+        name: 'AdminEmployeeDetail',
+        component: () => import('../views/admin/EmployeeDetail.vue')
+      },
+      {
+        path: 'employees/:id/edit',
+        name: 'AdminEmployeeEdit',
+        component: () => import('../views/admin/EmployeeEdit.vue')
       },
       {
         path: 'payrolls',
@@ -113,9 +129,19 @@ const routes = [
         component: () => import('../views/admin/PayrollList.vue')
       },
       {
+        path: 'payrolls/create',
+        name: 'AdminPayrollCreate',
+        component: () => import('../views/admin/PayrollCreate.vue')
+      },
+      {
         path: 'payrolls/:id',
         name: 'AdminPayrollDetail',
         component: () => import('../views/admin/PayrollDetail.vue')
+      },
+      {
+        path: 'payrolls/:id/edit',
+        name: 'AdminPayrollEdit',
+        component: () => import('../views/admin/PayrollEdit.vue')
       },
       {
         path: 'attendances',
@@ -123,9 +149,19 @@ const routes = [
         component: () => import('../views/admin/AttendanceList.vue')
       },
       {
-        path: 'attendance/:id',
+        path: 'attendances/create',
+        name: 'AdminAttendanceCreate',
+        component: () => import('../views/admin/AttendanceCreate.vue')
+      },
+      {
+        path: 'attendances/:id',
         name: 'AdminAttendanceDetail',
         component: () => import('../views/admin/AttendanceDetail.vue')
+      },
+      {
+        path: 'attendances/:id/edit',
+        name: 'AdminAttendanceEdit',
+        component: () => import('../views/admin/AttendanceEdit.vue')
       },
       {
         path: 'leave-requests',
@@ -133,9 +169,19 @@ const routes = [
         component: () => import('../views/admin/LeaveRequestList.vue')
       },
       {
+        path: 'leave-requests/create',
+        name: 'AdminLeaveRequestCreate',
+        component: () => import('../views/admin/LeaveRequestCreate.vue')
+      },
+      {
         path: 'leave-requests/:id',
         name: 'AdminLeaveRequestDetail',
         component: () => import('../views/admin/LeaveRequestDetail.vue')
+      },
+      {
+        path: 'leave-requests/:id/edit',
+        name: 'AdminLeaveRequestEdit',
+        component: () => import('../views/admin/LeaveRequestEdit.vue')
       },
       {
         path: 'permit-requests',

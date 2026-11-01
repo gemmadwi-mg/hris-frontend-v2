@@ -5,7 +5,7 @@
       <!-- NAVIGASI & AKSI HEADER (DIsembunyikan saat cetak) -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 print:hidden">
         <div class="flex items-center gap-4">
-          <button @click="router.push('/payrolls')" class="p-2.5 bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 rounded-xl shadow-sm transition" title="Kembali">
+          <button @click="router.push('/admin/payrolls')" class="p-2.5 bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 rounded-xl shadow-sm transition" title="Kembali">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
           </button>
           <div>

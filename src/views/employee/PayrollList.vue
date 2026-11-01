@@ -89,8 +89,8 @@
               <td class="p-4 font-semibold text-rose-600">- {{ formatRupiah(calculateTotalDeductions(item)) }}</td>
               <td class="p-4 font-black text-gray-900">{{ formatRupiah(item.net_salary) }}</td>
               <td class="p-4">
-                <span :class="getStatusBadgeClass(item.payment_status || (item.is_transferred ? 'Paid' : 'Pending'))">
-                  {{ getStatusLabel(item.payment_status || (item.is_transferred ? 'Paid' : 'Pending')) }}
+                <span :class="getStatusBadgeClass(item.status || (item.is_transferred ? 'Paid' : 'Pending'))">
+                  {{ getStatusLabel(item.status || (item.is_transferred ? 'Paid' : 'Pending')) }}
                 </span>
               </td>
               <td class="p-4 text-center">
