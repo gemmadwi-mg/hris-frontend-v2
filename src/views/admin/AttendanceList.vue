@@ -12,7 +12,7 @@
         <!-- TOMBOL INPUT MANUAL (Hanya untuk Admin, HR Manager, & HR Staff) -->
         <router-link 
           v-if="authStore.hasAnyRole(['System Administrator', 'HR Manager', 'HR Staff'])"
-          to="/attendances/create"
+          to="/admin/attendances/create"
           class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition shadow-sm w-max"
         >
           + Input Absensi Manual
@@ -103,7 +103,7 @@
                     
                     <!-- TOMBOL DETAIL (Dapat diakses oleh semua role) -->
                     <router-link 
-                      :to="`/attendances/${att.attendance_id}`" 
+                      :to="`/admin/attendances/${att.attendance_id}`" 
                       title="Lihat Detail"
                       class="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
                     >
@@ -116,7 +116,7 @@
                     <!-- TOMBOL EDIT (Hanya Admin, HR Manager, & HR Staff) -->
                     <router-link 
                       v-if="authStore.hasAnyRole(['System Administrator', 'HR Manager', 'HR Staff'])"
-                      :to="`/attendances/${att.attendance_id}/edit`" 
+                      :to="`/admin/attendances/${att.attendance_id}/edit`" 
                       title="Edit Absensi"
                       class="p-1.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors"
                     >

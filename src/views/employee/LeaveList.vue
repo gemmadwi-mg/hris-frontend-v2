@@ -90,10 +90,10 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 text-xs">
-            <tr v-for="item in leaveRequests" :key="item.leave_request_id" class="hover:bg-slate-50/80 transition">
+            <tr v-for="item in leaveRequests" :key="item.leave_request_id || item.id" class="hover:bg-slate-50/80 transition">
               <td class="p-4 font-bold text-gray-900">
                 {{ item.leave_type }}
-                <span class="block text-[10px] text-gray-400 font-mono font-normal">#{{ item.leave_request_id }}</span>
+                <span class="block text-[10px] text-gray-400 font-mono font-normal">#{{ item.leave_request_id || item.id }}</span>
               </td>
               <td class="p-4 text-gray-700 font-semibold">
                 {{ formatDateRange(item.start_date, item.end_date) }}
@@ -118,7 +118,7 @@
                   </button>
                   <button 
                     v-if="item.status === 'Pending'"
-                    @click="confirmCancel(item.leave_request_id)"
+                    @click="confirmCancel(item.leave_request_id || item.id)"
                     class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold text-[11px] rounded-xl border border-red-200 transition"
                   >
                     Batalkan
@@ -134,13 +134,13 @@
       <div class="md:hidden space-y-3">
         <div 
           v-for="item in leaveRequests" 
-          :key="item.leave_request_id"
+          :key="item.leave_request_id || item.id"
           class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm space-y-3"
         >
           <div class="flex justify-between items-start pb-2 border-b border-gray-100">
             <div>
               <span class="text-xs font-bold text-gray-900 block">{{ item.leave_type }}</span>
-              <span class="text-[10px] text-gray-400 font-mono">#{{ item.leave_request_id }}</span>
+              <span class="text-[10px] text-gray-400 font-mono">#{{ item.leave_request_id || item.id }}</span>
             </div>
             <span :class="getStatusBadgeClass(item.status)">
               {{ getStatusLabel(item.status) }}
@@ -171,7 +171,7 @@
             </button>
             <button 
               v-if="item.status === 'Pending'"
-              @click="confirmCancel(item.leave_request_id)"
+              @click="confirmCancel(item.leave_request_id || item.id)"
               class="px-2.5 py-1 bg-red-50 text-red-600 font-bold text-[10px] rounded-lg border border-red-200"
             >
               Batalkan
@@ -180,7 +180,7 @@
         </div>
       </div>
 
-      <!-- PAGINASI -->
+      <!-- PAGINASI HASIL PERBAIKAN -->
       <div v-if="pagination.last_page > 1" class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-200">
         <button 
           @click="fetchLeaveRequests(pagination.current_page - 1)" 
@@ -210,7 +210,7 @@
         <div class="flex justify-between items-center pb-2 border-b border-gray-100">
           <div>
             <h3 class="text-sm font-bold text-gray-900">Detail Pengajuan Cuti</h3>
-            <p class="text-[10px] text-gray-400 font-mono">#{{ selectedItem.leave_request_id }}</p>
+            <p class="text-[10px] text-gray-400 font-mono">#{{ selectedItem.leave_request_id || selectedItem.id }}</p>
           </div>
           <button @click="isModalOpen = false" class="p-1 rounded-full text-gray-400 hover:text-gray-600 text-sm">
             ✖
@@ -233,19 +233,16 @@
             <span class="font-semibold text-gray-800">{{ formatDateRange(selectedItem.start_date, selectedItem.end_date) }}</span>
           </div>
 
-          <!-- KETERANGAN / ALASAN -->
           <div class="bg-gray-50 p-3 rounded-2xl space-y-1 border border-gray-100">
             <span class="text-[10px] text-gray-400 font-bold block uppercase">Alasan Cuti</span>
             <p class="text-gray-800 leading-relaxed">{{ selectedItem.reason }}</p>
           </div>
 
-          <!-- REASON REJECTION IF ANY -->
           <div v-if="selectedItem.status === 'Rejected' && selectedItem.rejection_reason" class="bg-rose-50 p-3 rounded-2xl space-y-1 border border-rose-100 text-rose-900">
             <span class="text-[10px] text-rose-500 font-bold block uppercase">Alasan Penolakan HRD</span>
             <p class="leading-relaxed">{{ selectedItem.rejection_reason }}</p>
           </div>
 
-          <!-- LAMPIRAN BERKAS -->
           <div v-if="selectedItem.attachment" class="pt-1">
             <a 
               :href="getAttachmentUrl(selectedItem.attachment)" 
@@ -315,6 +312,7 @@ const fetchLeaveRequests = async (page = 1) => {
     const response = await api.get('/leave-requests', {
       params: {
         status: selectedStatus.value || undefined,
+        my_requests: 1,
         page: page
       }
     })

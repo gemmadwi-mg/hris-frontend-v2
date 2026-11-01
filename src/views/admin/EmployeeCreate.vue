@@ -5,7 +5,7 @@
         <aside class="w-full md:w-80 bg-white border-r border-gray-200 flex flex-col shadow-sm z-10 shrink-0">
             <!-- Header Sidebar -->
             <div class="p-6 border-b border-gray-200 flex items-center gap-3">
-                <button @click="router.push('/employees')"
+                <button @click="router.push('/admin/employees')"
                     class="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition" title="Batal & Kembali">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -469,7 +469,7 @@ const options = ref({ roles: [], companies: [], branches: [], ptkp_groups: [] })
 const form = reactive({
     full_name: '', nik: '', email: '', password: '',
     date_of_birth: '', gender: 'Male', phone_number: '', address: '',
-    job_title: '', departement: '', employment_status: 'Permanent', join_date: '', annual_leave_quota: 12,
+    job_title: '', department: '', employment_status: 'Permanent', join_date: '', annual_leave_quota: 12, // 👈 Sudah diperbaiki
     role_id: '', company_id: '', branch_id: '',
     basic_salary: 0, position_allowance: 0, meal_allowance: 0, transport_allowance: 0,
     bank_name: '', account_number: '', account_holder_name: '',
@@ -536,7 +536,7 @@ const submitForm = async () => {
             confirmButtonColor: '#2563eb', // Sesuai warna tombol biru Tailwind
         })
 
-        router.push('/employees')
+        router.push('/admin/employees')
 
     } catch (error) {
         let errorText = 'Terjadi kesalahan pada server.'

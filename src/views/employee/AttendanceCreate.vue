@@ -30,6 +30,14 @@
       </button>
     </div>
 
+    <!-- BANNER PERINGATAN JAM ABSENSI -->
+    <div 
+      v-if="attendanceType === 'In' && !isClockInTimeValid" 
+      class="p-3.5 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl text-xs font-semibold text-center leading-relaxed"
+    >
+      ⏰ Presensi Masuk (Clock In) belum dibuka. Presensi dibuka pukul 06:00 - 12:00 WIB.
+    </div>
+
     <!-- BOX CAMERA SELFIE -->
     <div class="bg-white p-4 rounded-3xl border border-gray-200 shadow-sm space-y-3">
       <div class="flex justify-between items-center">
@@ -135,20 +143,20 @@
     </div>
 
     <!-- TOMBOL SUBMIT PRESENSI -->
-    <button 
-      @click="submitAttendance" 
-      :disabled="isSubmitting || !capturedImage || !location.isWithinRadius"
-      class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm rounded-2xl shadow-lg transition flex items-center justify-center gap-2"
-    >
-      <span v-if="isSubmitting" class="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>
-      {{ isSubmitting ? 'Mengirim Data...' : `Kirim Presensi ${attendanceType === 'In' ? 'Masuk' : 'Pulang'}` }}
-    </button>
+<button 
+  @click="submitAttendance" 
+  :disabled="isSubmitting || !capturedImage || !location.isWithinRadius || (attendanceType === 'In' && !isClockInTimeValid) || (attendanceType === 'Out' && !isClockOutTimeValid)"
+  class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm rounded-2xl shadow-lg transition flex items-center justify-center gap-2"
+>
+  <span v-if="isSubmitting" class="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>
+  {{ isSubmitting ? 'Mengirim Data...' : `Kirim Presensi ${attendanceType === 'In' ? 'Masuk' : 'Pulang'}` }}
+</button>
 
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../../lib/axios'
 import { useAuthStore } from '../../stores/auth'
@@ -157,11 +165,13 @@ import Swal from 'sweetalert2'
 const authStore = useAuthStore()
 const router = useRouter()
 
-// KONFIGURASI KOORDINAT KANTOR PUSAT (Contoh: Surabaya)
-
-const OFFICE_LAT = -6.827920
-const OFFICE_LNG = 111.816666
+// KONFIGURASI KOORDINAT KANTOR PUSAT & JAM PRESENSI
+const OFFICE_LAT = -7.343063
+const OFFICE_LNG = 112.723965
 const MAX_RADIUS_METERS = 100 // Radius maksimal 100 Meter
+
+const START_CLOCK_IN_HOUR = 6  // Pukul 06:00 WIB
+const END_CLOCK_IN_HOUR = 12   // Pukul 12:00 WIB
 
 // STATE MANAGEMENT
 const attendanceType = ref('In') // 'In' atau 'Out'
@@ -185,7 +195,19 @@ const location = ref({
 
 const isSubmitting = ref(false)
 
-// 1. INreader KAMERA WEBCAM / HP
+// 🕒 CEK KELAYAKAN WAKTU CLOCK IN (FRONTEND)
+const isClockInTimeValid = computed(() => {
+  const currentHour = new Date().getHours()
+  return currentHour >= START_CLOCK_IN_HOUR && currentHour < END_CLOCK_IN_HOUR
+})
+
+// 🕒 CEK KELAYAKAN JAM CLOCK OUT (FRONTEND)
+const isClockOutTimeValid = computed(() => {
+  const hour = new Date().getHours()
+  return hour >= 16 // Dibuka mulai jam 16:00 WIB
+})
+
+// 1. KAMERA WEBCAM / HP
 const startCamera = async () => {
   cameraErrorMessage.value = ''
   try {
@@ -224,7 +246,6 @@ const takeSnapshot = () => {
 
   context.drawImage(video, 0, 0, canvas.width, canvas.height)
   
-  // Simpan data foto sebagai Base64 & Blob
   capturedImage.value = canvas.toDataURL('image/jpeg', 0.8)
   canvas.toBlob((blob) => {
     capturedBlob.value = blob
@@ -239,13 +260,13 @@ const resetSnapshot = () => {
   startCamera()
 }
 
-// 2. GEOLOCATION GPS & HAVERSINE RADIUS CALCULATION
+// 2. GEOLOCATION GPS & HAVERSINE RADIUS CALCULATION (PERBAIKAN SINTAKSIS)
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371e3 // Radius bumi dalam meter
-  const φ1 = lat1 * Math.PI / 180
-  const φ2 = lat2 * Math.PI / 180
-  const Δφ = (lat2 - lat1) * Math.PI / 180
-  const Δλ = (lon2 - lon1) * Math.PI / 180
+  const φ1 = (lat1 * Math.PI) / 180
+  const φ2 = (lat2 * Math.PI) / 180
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180
 
   const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
             Math.cos(φ1) * Math.cos(φ2) *
@@ -289,8 +310,10 @@ const fetchLocation = () => {
   )
 }
 
-
 const submitAttendance = async () => {
+  if (attendanceType.value === 'In' && !isClockInTimeValid.value) {
+    return Swal.fire('Belum Waktunya Presensi', 'Presensi Masuk (Clock In) hanya dapat dilakukan antara pukul 06:00 - 12:00 WIB.', 'warning')
+  }
   if (!capturedBlob.value) {
     return Swal.fire('Peringatan', 'Foto selfie wajib diambil!', 'warning')
   }
@@ -300,7 +323,6 @@ const submitAttendance = async () => {
 
   isSubmitting.value = true
 
-  // Ambil ID Karyawan dan Cabang dari profil user login
   const employeeId = authStore.user?.employee_id || authStore.user?.id
   const branchId = authStore.user?.branch_id || authStore.user?.employee?.branch_id || 'BRANCH01'
 
