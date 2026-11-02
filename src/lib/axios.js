@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // Buat instance khusus untuk HRIS API
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api', // Sesuaikan dengan port Laravel Anda
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api', // Sesuaikan dengan port Laravel Anda
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/json'
