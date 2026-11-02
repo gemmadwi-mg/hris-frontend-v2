@@ -12,7 +12,7 @@
         <!-- TOMBOL BUAT PENGAJUAN (Dapat diakses oleh semua karyawan) -->
         <router-link 
           v-if="authStore.hasAnyRole(['System Administrator', 'HR Manager', 'HR Staff', 'Finance', 'Employee'])"
-          to="/permit-requests/create" 
+          to="/admin/permit-requests/create" 
           class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition shadow-sm flex items-center gap-2 w-max"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
@@ -82,7 +82,7 @@
                     
                     <!-- TOMBOL DETAIL/APPROVAL (Bisa diakses oleh semua role) -->
                     <router-link 
-                      :to="`/permit-requests/${permit.permit_request_id}`" 
+                      :to="`/admin/permit-requests/${permit.permit_request_id}`" 
                       title="Detail / Approval" 
                       class="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
                     >
@@ -92,7 +92,7 @@
                     <!-- TOMBOL EDIT (Hanya bisa jika status Pending & peran yang diizinkan) -->
                     <router-link 
                       v-if="permit.status === 'Pending' && authStore.hasAnyRole(['System Administrator', 'HR Manager', 'HR Staff', 'Employee'])" 
-                      :to="`/permit-requests/${permit.permit_request_id}/edit`" 
+                      :to="`/admin/permit-requests/${permit.permit_request_id}/edit`" 
                       title="Edit Pengajuan" 
                       class="p-1.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors"
                     >

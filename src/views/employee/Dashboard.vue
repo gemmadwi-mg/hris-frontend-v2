@@ -88,7 +88,9 @@
             ⏰ Clock In Ditutup (06:00 - 12:00 WIB)
           </button>
 
-          <button v-else-if="!todayAttendance?.clock_in" @click="router.push('/employee/attendances/create')"
+          <!-- 1b. Jika Hari Kerja & Belum Clock In (Jam Buka) -->
+          <button v-else-if="!todayAttendance?.clock_in"
+            @click="router.push({ path: '/employee/attendances/create', query: { type: 'In' } })"
             class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-emerald-500 hover:from-blue-600 hover:to-emerald-600 active:scale-[0.98] text-white font-bold rounded-2xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -97,7 +99,9 @@
             Presensi Masuk (Clock In)
           </button>
 
-          <button v-else-if="!todayAttendance?.clock_out" @click="router.push('/employee/attendances/create')"
+          <!-- 2. Jika Hari Kerja & Sudah Clock In tapi Belum Clock Out -->
+          <button v-else-if="!todayAttendance?.clock_out"
+            @click="router.push({ path: '/employee/attendances/create', query: { type: 'Out' } })"
             class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 active:scale-[0.98] text-white font-bold rounded-2xl shadow-lg transition flex items-center justify-center gap-2 text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -191,11 +195,13 @@
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-lg font-bold flex items-center justify-center text-sm"
                   :class="item.status === 'Cuti' || item.status === 'Izin' ? 'bg-purple-100 text-purple-700' : (item.clock_out ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700')">
-                  {{ item.status === 'Cuti' ? '🌴' : (item.status === 'Izin' ? '📄' : (item.clock_out ? 'Out' : 'In')) }}
+                  {{ item.status === 'Cuti' ? '🌴' : (item.status === 'Izin' ? '📄' : (item.clock_out ? 'Out' : 'In'))
+                  }}
                 </div>
                 <div>
                   <p class="font-bold text-gray-900 text-sm">
-                    {{ item.clock_in || item.clock_out ? (item.clock_out ? `Clock Out — ${item.clock_out}` : `Clock In — ${item.clock_in}`) : item.notes }}
+                    {{ item.clock_in || item.clock_out ? (item.clock_out ? `Clock Out — ${item.clock_out}` : `Clock In —
+                    ${item.clock_in}`) : item.notes }}
                   </p>
                   <p class="text-xs text-gray-400">{{ item.date_formatted }} • {{ item.notes }}</p>
                 </div>
@@ -298,7 +304,7 @@ const offDayReason = computed(() => {
 // 🕒 CEK KELAYAKAN JAM CLOCK IN (FRONTEND)
 const isClockInTimeValid = computed(() => {
   const hour = new Date().getHours()
-  return hour >= 6 && hour < 12
+  return hour >= 6 && hour < 13
 })
 
 // Real State Presensi Hari Ini

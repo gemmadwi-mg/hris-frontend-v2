@@ -194,6 +194,16 @@ const routes = [
         component: () => import('../views/admin/PermitRequestDetail.vue')
       },
       {
+        path: 'permit-requests/create',
+        name: 'AdminPermitRequestCreate',
+        component: () => import('../views/admin/PermitRequestCreate.vue')
+      },
+      {
+        path: 'permit-requests/:id/edit',
+        name: 'AdminPermitRequestEdit',
+        component: () => import('../views/admin/PermitRequestEdit.vue')
+      },
+      {
         path: 'overtimes',
         name: 'AdminOvertime',
         component: () => import('../views/admin/OvertimeList.vue')
@@ -202,7 +212,17 @@ const routes = [
         path: 'overtimes/:id',
         name: 'AdminOvertimeDetail',
         component: () => import('../views/admin/OvertimeDetail.vue')
-      }
+      },
+      {
+        path: 'overtimes/create',
+        name: 'AdminOvertimeCreate',
+        component: () => import('../views/admin/OvertimeCreate.vue')
+      },
+      {
+        path: 'overtimes/:id/edit',
+        name: 'AdminOvertimeEdit',
+        component: () => import('../views/admin/OvertimeEdit.vue')
+      },
     ]
   }
 ]
