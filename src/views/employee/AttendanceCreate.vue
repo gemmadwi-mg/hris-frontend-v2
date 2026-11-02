@@ -14,28 +14,49 @@
 
     <!-- TIPE ABSENSI (CHECK-IN / CHECK-OUT) -->
     <div class="grid grid-cols-2 gap-2 bg-gray-200/60 p-1.5 rounded-2xl border border-gray-200">
+      <!-- TAB CLOCK IN -->
       <button 
         @click="attendanceType = 'In'" 
-        :class="['py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2', attendanceType === 'In' ? 'bg-emerald-600 text-white shadow-md' : 'text-gray-600 hover:text-gray-900']"
+        :disabled="hasClockedIn"
+        :class="[
+          'py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2',
+          attendanceType === 'In' ? 'bg-emerald-600 text-white shadow-md' : 'text-gray-600 hover:text-gray-900',
+          hasClockedIn ? 'opacity-40 cursor-not-allowed select-none' : ''
+        ]"
       >
         <span class="w-2 h-2 rounded-full bg-emerald-300"></span>
-        Clock In (Masuk)
+        Clock In {{ hasClockedIn ? '(Sudah)' : '(Masuk)' }}
       </button>
+
+      <!-- TAB CLOCK OUT (Bisa diakses jika sudah Clock In) -->
       <button 
         @click="attendanceType = 'Out'" 
-        :class="['py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2', attendanceType === 'Out' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:text-gray-900']"
+        :disabled="!hasClockedIn || hasClockedOut"
+        :class="[
+          'py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2',
+          attendanceType === 'Out' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:text-gray-900',
+          (!hasClockedIn || hasClockedOut) ? 'opacity-40 cursor-not-allowed select-none' : ''
+        ]"
       >
         <span class="w-2 h-2 rounded-full bg-blue-300"></span>
-        Clock Out (Pulang)
+        Clock Out {{ hasClockedOut ? '(Sudah)' : '(Pulang)' }}
       </button>
     </div>
 
-    <!-- BANNER PERINGATAN JAM ABSENSI -->
+    <!-- BANNER PERINGATAN JAM ABSENSI MASUK -->
     <div 
       v-if="attendanceType === 'In' && !isClockInTimeValid" 
       class="p-3.5 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl text-xs font-semibold text-center leading-relaxed"
     >
-      ⏰ Presensi Masuk (Clock In) belum dibuka. Presensi dibuka pukul 06:00 - 12:00 WIB.
+      ⏰ Presensi Masuk (Clock In) belum dibuka. Presensi dibuka pukul 06:00 - 13:00 WIB.
+    </div>
+
+    <!-- BANNER PERINGATAN PULANG CEPAT -->
+    <div 
+      v-if="attendanceType === 'Out' && hasClockedIn && !hasClockedOut && !isClockOutTimeValid" 
+      class="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl text-xs font-semibold text-center leading-relaxed"
+    >
+      ⚠️ Anda presensi sebelum jam 16:00 WIB. Status akan dicatat sebagai <strong>Pulang Cepat (Early Depart)</strong>.
     </div>
 
     <!-- BOX CAMERA SELFIE -->
@@ -129,7 +150,6 @@
             </span>
           </div>
           
-          <!-- Indicator Radius Status -->
           <div :class="['p-2 rounded-xl text-[11px] font-semibold flex items-center gap-2 mt-2', location.isWithinRadius ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200']">
             <span>{{ location.isWithinRadius ? '✅ Dalam Radius Kantor (Presensi Diizinkan)' : '❌ Di Luar Radius Kantor (Maks. 100m)' }}</span>
           </div>
@@ -142,39 +162,49 @@
       </div>
     </div>
 
-    <!-- TOMBOL SUBMIT PRESENSI -->
-<button 
-  @click="submitAttendance" 
-  :disabled="isSubmitting || !capturedImage || !location.isWithinRadius || (attendanceType === 'In' && !isClockInTimeValid) || (attendanceType === 'Out' && !isClockOutTimeValid)"
-  class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm rounded-2xl shadow-lg transition flex items-center justify-center gap-2"
->
-  <span v-if="isSubmitting" class="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>
-  {{ isSubmitting ? 'Mengirim Data...' : `Kirim Presensi ${attendanceType === 'In' ? 'Masuk' : 'Pulang'}` }}
-</button>
+    <!-- TOMBOL SUBMIT PRESENSI (💡 Pembatasan Jam Out Dihapus dari :disabled) -->
+    <button 
+      @click="submitAttendance" 
+      :disabled="isSubmitting || !capturedImage || !location.isWithinRadius || (attendanceType === 'In' && !isClockInTimeValid)"
+      class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold text-sm rounded-2xl shadow-lg transition flex items-center justify-center gap-2"
+    >
+      <span v-if="isSubmitting" class="animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4"></span>
+      {{ isSubmitting ? 'Mengirim Data...' : `Kirim Presensi ${attendanceType === 'In' ? 'Masuk' : 'Pulang'}` }}
+    </button>
 
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import api from '../../lib/axios'
 import { useAuthStore } from '../../stores/auth'
 import Swal from 'sweetalert2'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 
 // KONFIGURASI KOORDINAT KANTOR PUSAT & JAM PRESENSI
 const OFFICE_LAT = -7.343063
 const OFFICE_LNG = 112.723965
-const MAX_RADIUS_METERS = 100 // Radius maksimal 100 Meter
+const MAX_RADIUS_METERS = 100
 
-const START_CLOCK_IN_HOUR = 6  // Pukul 06:00 WIB
-const END_CLOCK_IN_HOUR = 12   // Pukul 12:00 WIB
+const START_CLOCK_IN_HOUR = 6
+const END_CLOCK_IN_HOUR = 13
 
-// STATE MANAGEMENT
-const attendanceType = ref('In') // 'In' atau 'Out'
+// STATE MANAGEMENT PRESENSI
+const todayAttendance = ref(null)
+const isLoadingStatus = ref(true)
+
+// 🔒 COMPUTED STATUS ABSENSI HARI INI
+const hasClockedIn = computed(() => !!todayAttendance.value?.clock_in)
+const hasClockedOut = computed(() => !!todayAttendance.value?.clock_out)
+
+// STATE TIPE ABSENSI
+const attendanceType = ref('In')
+
 const isCameraActive = ref(false)
 const cameraErrorMessage = ref('')
 const capturedImage = ref(null)
@@ -195,17 +225,39 @@ const location = ref({
 
 const isSubmitting = ref(false)
 
-// 🕒 CEK KELAYAKAN WAKTU CLOCK IN (FRONTEND)
+// 🕒 CEK KELAYAKAN WAKTU CLOCK IN & OUT (FRONTEND)
 const isClockInTimeValid = computed(() => {
   const currentHour = new Date().getHours()
   return currentHour >= START_CLOCK_IN_HOUR && currentHour < END_CLOCK_IN_HOUR
 })
 
-// 🕒 CEK KELAYAKAN JAM CLOCK OUT (FRONTEND)
 const isClockOutTimeValid = computed(() => {
   const hour = new Date().getHours()
-  return hour >= 16 // Dibuka mulai jam 16:00 WIB
+  return hour >= 16 // Jam standar pulang (16:00 WIB)
 })
+
+// 🔍 FETCH STATUS PRESENSI HARI INI
+const fetchTodayAttendanceStatus = async () => {
+  isLoadingStatus.value = true
+  try {
+    const response = await api.get('/employee/dashboard-summary')
+    if (response.data?.success) {
+      todayAttendance.value = response.data.data.today_attendance
+
+      if (route.query.type) {
+        attendanceType.value = route.query.type
+      } else if (hasClockedIn.value && !hasClockedOut.value) {
+        attendanceType.value = 'Out'
+      } else {
+        attendanceType.value = 'In'
+      }
+    }
+  } catch (error) {
+    console.error('Gagal mengambil status presensi hari ini:', error)
+  } finally {
+    isLoadingStatus.value = false
+  }
+}
 
 // 1. KAMERA WEBCAM / HP
 const startCamera = async () => {
@@ -260,7 +312,8 @@ const resetSnapshot = () => {
   startCamera()
 }
 
-// 2. GEOLOCATION GPS & HAVERSINE RADIUS CALCULATION (PERBAIKAN SINTAKSIS)
+// 2. GEOLOCATION GPS & HAVERSINE RADIUS CALCULATION
+// 2. GEOLOCATION GPS & HAVERSINE RADIUS CALCULATION
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371e3 // Radius bumi dalam meter
   const φ1 = (lat1 * Math.PI) / 180
@@ -312,8 +365,25 @@ const fetchLocation = () => {
 
 const submitAttendance = async () => {
   if (attendanceType.value === 'In' && !isClockInTimeValid.value) {
-    return Swal.fire('Belum Waktunya Presensi', 'Presensi Masuk (Clock In) hanya dapat dilakukan antara pukul 06:00 - 12:00 WIB.', 'warning')
+    return Swal.fire('Belum Waktunya Presensi', 'Presensi Masuk (Clock In) hanya dapat dilakukan antara pukul 06:00 - 13:00 WIB.', 'warning')
   }
+
+  // 💡 DIALOG KONFIRMASI JIKA CLOCK OUT SEBELUM JAM 16:00 WIB (PULANG CEPAT)
+  if (attendanceType.value === 'Out' && !isClockOutTimeValid.value) {
+    const confirmEarly = await Swal.fire({
+      title: 'Konfirmasi Pulang Cepat',
+      text: 'Saat ini belum memasuki jam pulang normal (16:00 WIB). Absensi Anda akan dicatat sebagai "Pulang Cepat / Early Depart". Lanjutkan?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#f59e0b',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Ya, Clock Out',
+      cancelButtonText: 'Batal'
+    })
+
+    if (!confirmEarly.isConfirmed) return
+  }
+
   if (!capturedBlob.value) {
     return Swal.fire('Peringatan', 'Foto selfie wajib diambil!', 'warning')
   }
@@ -358,6 +428,7 @@ const submitAttendance = async () => {
 
 // LIFECYCLE
 onMounted(() => {
+  fetchTodayAttendanceStatus()
   startCamera()
   fetchLocation()
 })

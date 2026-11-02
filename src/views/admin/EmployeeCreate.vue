@@ -125,9 +125,11 @@
                         </div>
                         <!-- Pilihan 2: Jika ingin HRD memilih dari opsi statis yang sudah Anda tentukan -->
                         <div>
-                            <label>Departemen</label>
-                            <select v-model="form.department" class="form-select">
-                                <option value="">Pilih Departemen</option>
+                
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Departemen</label>
+                            <select v-model="form.department" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white outline-none">
+                                <option value="" disabled>-- Pilih Departemen --</option>
                                 <option value="Information Technology">Information Technology</option>
                                 <option value="Human Resources">Human Resources</option>
                                 <option value="Finance">Finance</option>
